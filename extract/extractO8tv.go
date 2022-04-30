@@ -24,13 +24,13 @@ type ExtractO8tv struct {
 
 func (obj *ExtractO8tv) ExtractM3u8Url() (string, error) {
 	videoPlayPageUrl, _ := obj.getVideoPlayPageUrl()
-	// fmt.Println("videoPlayPageUrl:", videoPlayPageUrl)
+	fmt.Println("videoPlayPageUrl:", videoPlayPageUrl)
 
 	cryptoM3u8Url, err2 := obj.getCryptoM3u8Url(videoPlayPageUrl)
 	if err2 != nil {
 		fmt.Println("", err2)
 	}
-	// fmt.Println("cryptoM3u8Url:", cryptoM3u8Url)
+	fmt.Println("cryptoM3u8Url:", cryptoM3u8Url)
 
 	m3u8Url, _ := obj.decryptM3u8Url(cryptoM3u8Url)
 	fmt.Println("m3u8Url:", m3u8Url)
