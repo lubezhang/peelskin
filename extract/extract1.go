@@ -22,7 +22,17 @@ type Step2 struct {
 	fvkey string
 }
 
+const (
+	// CONST_BASE_UA   = "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
+	CONST_BASE_UA   = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.131 Safari/537.36"
+	CONST_BASE_URL  = "https://jx.xmflv.com"
+	CONST_BASE_URL1 = CONST_BASE_URL + "/?url="       // https://jx.m3u8.pw/?url=
+	CONST_BASE_URL2 = CONST_BASE_URL + "/player.php"  // https://jx.xmflv.com/player.php?time=1650878119&url=https://v.qq.com/x/cover/mzc00200imi2b3v/l00344c9o6b.html
+	CONST_BASE_URL3 = CONST_BASE_URL + "/xmflv-1.SVG" // sdf
+)
+
 func ExtractM3u8(videoPageUrl string) error {
+	LoggerDebug("视频源：" + videoPageUrl)
 	doc1, err := HttpGetStep1(videoPageUrl)
 	if err != nil {
 		log.Fatal(err)
@@ -32,7 +42,6 @@ func ExtractM3u8(videoPageUrl string) error {
 	doc1.Find("script").Each(func(i int, s *goquery.Selection) {
 		if i == 1 {
 			step1Time = extractVal(s.Text(), "time")
-			// fmt.Println("=======", i, step1Time)
 			fmt.Println()
 		}
 	})
@@ -55,7 +64,7 @@ func ExtractM3u8(videoPageUrl string) error {
 				stepParam.fvkey = extractVal(s.Text(), "fvkey")
 			}
 		})
-		fmt.Println(stepParam)
+		// fmt.Println(stepParam)
 
 		time.Sleep(time.Second * 2)
 
@@ -65,20 +74,6 @@ func ExtractM3u8(videoPageUrl string) error {
 		fmt.Println("m3u8Url:", m3u8Url)
 	}
 	return nil
-}
-
-func extractTime(str string) string {
-	arrHls := strings.Split(str, "\n")
-	for _, v := range arrHls {
-		val := strings.TrimSpace(v)
-		if len(val) != 0 && strings.Contains(val, "var time") {
-			// val = strings.Replace(val, "var time = '", "", -1)
-			// val = strings.Replace(val, "';", "", -1)
-			val = extractVal(val, "time")
-			return val
-		}
-	}
-	return ""
 }
 
 func extractVal(str string, key string) string {
@@ -93,13 +88,6 @@ func extractVal(str string, key string) string {
 	}
 	return ""
 }
-
-const (
-	CONST_BASE_UA   = "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
-	CONST_BASE_URL1 = "https://jx.xmflv.com/?url="      // https://jx.m3u8.pw/?url=
-	CONST_BASE_URL2 = "https://jx.xmflv.com/player.php" // https://jx.xmflv.com/player.php?time=1650878119&url=https://v.qq.com/x/cover/mzc00200imi2b3v/l00344c9o6b.html
-	CONST_BASE_URL3 = "https://jx.xmflv.com/xmflv-1.SVG"
-)
 
 func HttpGetStep1(url string) (*goquery.Document, error) {
 	res, err := http.Get(CONST_BASE_URL1 + url)
