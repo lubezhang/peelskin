@@ -4,6 +4,7 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -38,22 +39,31 @@ type XmjxStep2Params struct {
 	fvkey string
 }
 
+type XmjxVideo struct {
+	code    int
+	success int
+	player  string
+	title   string
+	vtype   string
+	url     string
+}
+
 type Xmjx struct {
 	videoPageUrl string // 视频播放页面链接
 }
 
-func (xmjx *Xmjx) ExtractUrl() {
+func (xmjx *Xmjx) ExtractVideo() (XmjxVideo, error) {
 	time1, err1 := xmjx.getStep1Time()
 	if err1 != nil {
 		LoggerError(err1.Error())
-		return
+		return XmjxVideo{}, err1
 	}
 	params, err2 := xmjx.getStep2Params(time1)
 	if err2 != nil {
 		LoggerError(err2.Error())
-		return
+		return XmjxVideo{}, err1
 	}
-	xmjx.getStep3VideoUrl(params)
+	return xmjx.getStep3Video(params)
 }
 
 func (xmjx *Xmjx) getStep1Time() (result string, err error) {
@@ -102,7 +112,8 @@ func (xmjx *Xmjx) getStep2Params(time string) (result XmjxStep2Params, err error
 	return
 }
 
-func (xmjx *Xmjx) getStep3VideoUrl(params XmjxStep2Params) (result string, err error) {
+func (xmjx *Xmjx) getStep3Video(params XmjxStep2Params) (result XmjxVideo, err error) {
+	result = XmjxVideo{}
 	formData := url.Values{
 		"url":   {params.url},
 		"time":  {params.time},
@@ -112,8 +123,8 @@ func (xmjx *Xmjx) getStep3VideoUrl(params XmjxStep2Params) (result string, err e
 		"fvkey": {xmjx.encryptFVkey(params.fvkey)},
 	}
 
-	body := strings.NewReader(formData.Encode())
 	LoggerDebug("请求参数：" + formData.Encode())
+	body := strings.NewReader(formData.Encode())
 	req, _ := http.NewRequest("POST", CONST_BASE_URL3, body)
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8")
 	req.Header.Set("User-Agent", CONST_BASE_UA)
@@ -121,12 +132,23 @@ func (xmjx *Xmjx) getStep3VideoUrl(params XmjxStep2Params) (result string, err e
 	resp, err2 := http.DefaultClient.Do(req)
 	if err != nil {
 		LoggerError(err2.Error())
-		return "", err2
+		return result, err2
 	}
 	defer resp.Body.Close()
 	buf, _ := ioutil.ReadAll(resp.Body)
-
 	LoggerDebug("视频数据：" + string(buf))
+
+	var dat map[string]interface{}
+	if err := json.Unmarshal(buf, &dat); err == nil {
+		result.code = int(dat["code"].(float64))
+		result.success = int(dat["success"].(float64))
+		result.player = dat["player"].(string)
+		result.title = dat["title"].(string)
+		result.vtype = dat["type"].(string)
+		result.url = dat["url"].(string)
+	}
+
+	LoggerDebug("视频数据：" + result.url)
 	return
 }
 
