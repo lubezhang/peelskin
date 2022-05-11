@@ -40,12 +40,12 @@ type XmjxStep2Params struct {
 }
 
 type XmjxVideo struct {
-	code    int
-	success int
-	player  string
-	title   string
-	vtype   string
-	url     string
+	Code    int
+	Success int
+	Player  string
+	Title   string
+	Vtype   string
+	Url     string
 }
 
 type Xmjx struct {
@@ -53,15 +53,15 @@ type Xmjx struct {
 }
 
 func (xmjx *Xmjx) ExtractVideo() (XmjxVideo, error) {
-	time1, err1 := xmjx.getStep1Time()
-	if err1 != nil {
-		LoggerError(err1.Error())
-		return XmjxVideo{}, err1
-	}
-	params, err2 := xmjx.getStep2Params(time1)
+	// time1, err1 := xmjx.getStep1Time()
+	// if err1 != nil {
+	// 	LoggerError(err1.Error())
+	// 	return XmjxVideo{}, err1
+	// }
+	params, err2 := xmjx.getStep2Params("1650878119")
 	if err2 != nil {
 		LoggerError(err2.Error())
-		return XmjxVideo{}, err1
+		return XmjxVideo{}, err2
 	}
 	return xmjx.getStep3Video(params)
 }
@@ -89,7 +89,7 @@ func (xmjx *Xmjx) getStep1Time() (result string, err error) {
 }
 
 func (xmjx *Xmjx) getStep2Params(time string) (result XmjxStep2Params, err error) {
-	url := fmt.Sprintf("%s?time=%s&url=%s", CONST_BASE_XMJX_URL2, time, xmjx.videoPageUrl)
+	url := fmt.Sprintf("%s%s", CONST_BASE_XMJX_URL1, xmjx.videoPageUrl)
 	LoggerDebug("Step2 url: " + url)
 	result = XmjxStep2Params{}
 	doc1, err := HttpGetDocument(url)
@@ -140,15 +140,15 @@ func (xmjx *Xmjx) getStep3Video(params XmjxStep2Params) (result XmjxVideo, err e
 
 	var dat map[string]interface{}
 	if err := json.Unmarshal(buf, &dat); err == nil {
-		result.code = int(dat["code"].(float64))
-		result.success = int(dat["success"].(float64))
-		result.player = dat["player"].(string)
-		result.title = dat["title"].(string)
-		result.vtype = dat["type"].(string)
-		result.url = dat["url"].(string)
+		result.Code = int(dat["code"].(float64))
+		result.Success = int(dat["success"].(float64))
+		result.Player = dat["player"].(string)
+		result.Title = dat["title"].(string)
+		result.Vtype = dat["type"].(string)
+		result.Url = dat["url"].(string)
 	}
 
-	LoggerDebug("视频数据：" + result.url)
+	LoggerDebug("视频数据：" + result.Url)
 	return
 }
 
