@@ -11,9 +11,9 @@ func TestExtractUrl(t *testing.T) {
 	assetObj.Equal("e10adc3949ba59abbe56e057f20f883e", "e10adc3949ba59abbe56e057f20f883e")
 
 	// xmjx := NewXmjx("https://v.qq.com/x/cover/mzc00200imi2b3v/l00344c9o6b.html")
-	xmjx := NewXmjx("https://www.iqiyi.com/v_230c1yg1uzo.html?vfrm=pcw_dianying&vfrmblk=E&vfrmrst=711219_dianying_top_video_play4")
+	// xmjx := NewXmjx("https://www.iqiyi.com/v_230c1yg1uzo.html?vfrm=pcw_dianying&vfrmblk=E&vfrmrst=711219_dianying_top_video_play4")
 	// xmjx := NewXmjx("https://v.youku.com/v_show/id_XNTg1NjE3MDM0OA==.html?spm=a2ha1.14919748_WEBHOME_GRAY.drawer5.d_zj1_2&s=bddeff276f7f4fde94ae&scm=20140719.rcmd.7182.show_bddeff276f7f4fde94ae")
-	// xmjx := NewXmjx("https://www.bilibili.com/bangumi/play/ss41536?spm_id_from=333.1007.partition_recommend.content.click")
+	xmjx := NewXmjx("https://www.bilibili.com/angumi/play/ss41536?spm_id_from=333.1007.partition_recommend.content.click")
 	video, _ := xmjx.ExtractVideo()
 	assetObj.Equal(video.Url, video.Url)
 }

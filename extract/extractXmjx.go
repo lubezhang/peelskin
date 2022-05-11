@@ -138,17 +138,7 @@ func (xmjx *Xmjx) getStep3Video(params XmjxStep2Params) (result XmjxVideo, err e
 	buf, _ := ioutil.ReadAll(resp.Body)
 	LoggerDebug("视频数据：" + string(buf))
 
-	var dat map[string]interface{}
-	if err := json.Unmarshal(buf, &dat); err == nil {
-		result.Code = int(dat["code"].(float64))
-		result.Success = int(dat["success"].(float64))
-		result.Player = dat["player"].(string)
-		result.Title = dat["title"].(string)
-		result.Vtype = dat["type"].(string)
-		result.Url = dat["url"].(string)
-	}
-
-	LoggerDebug("视频数据：" + result.Url)
+	err = json.Unmarshal(buf, &result)
 	return
 }
 
